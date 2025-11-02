@@ -1,5 +1,8 @@
 // C++ code
 //
+#ifndef LED_BUILTIN
+  #define LED_BUILTIN 2 // Define LED_BUILTIN if not already defined
+#endif
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
