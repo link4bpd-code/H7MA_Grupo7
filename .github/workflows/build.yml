@@ -68,20 +68,45 @@ jobs:
           # find . -name "*.ino" -not -name "blink.ino" | while read -r sketch_file; do
           find . -name "*.ino" | while read -r sketch_file; do
 
-            echo "--- Compiling $sketch_file for $FQBN_AVR ---"
+            echo "--- Processing sketch: $sketch_file ---"
+
+            # Get the .ino filename WITHOUT the .ino extension
+            # e.g., "./subfolder/MySketch.ino" -> "MySketch"
+            SKETCH_NAME=$(basename "$sketch_file" .ino)
+            
+            # --- 1. AVR Compilation (with directory fix) ---
+            echo "Preparing $SKETCH_NAME for $FQBN_AVR..."
+
+            # Create the required directory structure
+            # e.g., ./temp_avr_sketches/MySketch
+            TEMP_SKETCH_DIR="./temp_avr_sketches/$SKETCH_NAME"
+            mkdir -p "$TEMP_SKETCH_DIR"
+            
+            # Copy the .ino file into it, renaming it to match the folder
+            # e.g., cp ./subfolder/MySketch.ino ./temp_avr_sketches/MySketch/MySketch.ino
+            cp "$sketch_file" "$TEMP_SKETCH_DIR/$SKETCH_NAME.ino"
+            
+            # Compile by pointing to the new temporary directory
+            echo "Compiling $TEMP_SKETCH_DIR for $FQBN_AVR..."
             arduino-cli compile \
               --fqbn $FQBN_AVR \
               --output-dir ./build \
-              "$sketch_file"
+              "$TEMP_SKETCH_DIR" # <-- Point to the folder, not the file
 
-            echo "--- Compiling $sketch_file for $FQBN_ESP32 ---"
+            # --- 2. ESP32 Compilation (unmodified) ---
+            # This assumes the ESP32 compiler is fine with the original file path
+            echo "Compiling $sketch_file for $FQBN_ESP32..."
             arduino-cli compile \
               --fqbn $FQBN_ESP32 \
               --output-dir ./build \
-              "$sketch_file"
+              "$sketch_file" # <-- Point to the original file
               
           done
-      
+          
+      - name: Clean up temp sketches
+        if: always() # Run even if compilation fails
+        run: rm -rf ./temp_avr_sketches
+        
       # 7. Create or Update the "latest" Release
       # This step uses the GitHub CLI (gh) which is pre-installed.
       # It tries to create a release. If it fails (because "latest" exists),
