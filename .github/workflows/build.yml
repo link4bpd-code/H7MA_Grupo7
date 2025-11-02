@@ -138,5 +138,5 @@ jobs:
               --latest \
               --prerelease=false \
               --draft=false \
-              ./build/*.bin ./build/*.elf ./build/*.map \
+              ./build/*.bin ./build/*.hex \
           )
