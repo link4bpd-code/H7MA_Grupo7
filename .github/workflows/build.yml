@@ -99,7 +99,7 @@ jobs:
             arduino-cli compile \
               --fqbn $FQBN_ESP32 \
               --output-dir ./build \
-              "$sketch_file" # <-- Point to the original file
+              "$TEMP_SKETCH_DIR" # <-- Point to the original file
               
           done
           
