@@ -41,7 +41,7 @@ jobs:
       - name: Install Cores
         run: |
           arduino-cli core update-index
-          arduino-cli core install arduino:avr
+      #     arduino-cli core install arduino:avr
           arduino-cli core install esp32:esp32
 
       # 5. Install any libraries you need
@@ -64,8 +64,8 @@ jobs:
 
           # Find all .ino files, excluding blink.ino.
           # The 'while read' loop is safer for file paths with spaces.
-          # find . -name "*.ino" -not -name "blink.ino" | while read -r sketch_file; do
-          find . -name "*.ino" | while read -r sketch_file; do
+          find . -name "*.ino" -not -name "blink.ino" | while read -r sketch_file; do
+          # find . -name "*.ino" | while read -r sketch_file; do
 
             echo "--- Processing sketch: $sketch_file ---"
 
@@ -74,11 +74,11 @@ jobs:
             SKETCH_NAME=$(basename "$sketch_file" .ino)
             
             # --- 1. AVR Compilation (with directory fix) ---
-            echo "Preparing $SKETCH_NAME for $FQBN_AVR..."
+            # echo "Preparing $SKETCH_NAME for $FQBN_AVR..."
 
             # Create the required directory structure
             # e.g., ./temp_avr_sketches/MySketch
-            TEMP_SKETCH_DIR="./temp_avr_sketches/$SKETCH_NAME"
+            TEMP_SKETCH_DIR="./temp_sketches/$SKETCH_NAME"
             mkdir -p "$TEMP_SKETCH_DIR"
             
             # Copy the .ino file into it, renaming it to match the folder
@@ -86,11 +86,11 @@ jobs:
             cp "$sketch_file" "$TEMP_SKETCH_DIR/$SKETCH_NAME.ino"
             
             # Compile by pointing to the new temporary directory
-            echo "Compiling $TEMP_SKETCH_DIR for $FQBN_AVR..."
-            arduino-cli compile \
-              --fqbn $FQBN_AVR \
-              --output-dir ./build \
-              "$TEMP_SKETCH_DIR" # <-- Point to the folder, not the file
+            # echo "Compiling $TEMP_SKETCH_DIR for $FQBN_AVR..."
+            # arduino-cli compile \
+            #   --fqbn $FQBN_AVR \
+            #   --output-dir ./build \
+            #   "$TEMP_SKETCH_DIR" # <-- Point to the folder, not the file
 
             # --- 2. ESP32 Compilation (unmodified) ---
             # This assumes the ESP32 compiler is fine with the original file path
