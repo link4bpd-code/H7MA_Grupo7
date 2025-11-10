@@ -41,7 +41,7 @@ jobs:
       - name: Install Cores
         run: |
           arduino-cli core update-index
-      #     arduino-cli core install arduino:avr
+          arduino-cli core install arduino:avr
           arduino-cli core install esp32:esp32
 
       # 5. Install any libraries you need
