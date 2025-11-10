@@ -48,7 +48,7 @@ jobs:
       # (Uncomment and modify this section if your sketch has dependencies)
       - name: Install Libraries
         run: |
-          arduino-cli lib install "Adafruit GFX Library" "Adafruit MPU6050" "Adafruit SSD1306" "Adafruit Sensor Lab"
+          arduino-cli lib install "RemoteXY" "BluetoothSerial"
 
       # 6. Compile the sketch
       # ---!!! IMPORTANT: CHANGE THESE VALUES !!!---
