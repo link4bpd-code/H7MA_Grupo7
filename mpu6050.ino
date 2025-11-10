@@ -15,24 +15,31 @@ Adafruit_MPU6050 mpu;
 #define OLED_RESET -1    // Pin de Reset (-1 si se comparte el reset de Arduino)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-// --- Pines I2C del XIAO ESP32-S3 ---
-// Según tu diagrama, estás usando los pines I2C por defecto
-// D4 (SDA) y D5 (SCL)
-const int I2C_SDA_PIN = D9;
-const int I2C_SCL_PIN = D8;
+// --- CAMBIO ---
+// Definición de pines compatible con Arduino Uno y XIAO
+// En XIAO ESP32-S3: 3=D2, 4=D3, 2=D1
+// En Arduino Uno:   3, 4, 2 son pines digitales estándar.
+const int RED_LED_PIN = 3;   // Rojo (Estaba en D2)
+const int GREEN_LED_PIN = 4; // Verde (Estaba en D3)
+const int BLUE_LED_PIN = 2;  // Azul (Estaba en D1, y ya no D4 porque D4 ahora es usado por I2C (SCL))
+
+
 void setup() {
   Serial.begin(115200);
-  pinMode(D2, OUTPUT);
-  pinMode(D3, OUTPUT);
-  pinMode(D4, OUTPUT);
+
+  // --- CAMBIO ---
+  // Usar las constantes de pin universales
+  pinMode(RED_LED_PIN, OUTPUT);   // Rojo
+  pinMode(GREEN_LED_PIN, OUTPUT); // Verde
+  pinMode(BLUE_LED_PIN, OUTPUT);  // Azul
 
   Serial.println("");
-  Serial.println("Hello, XIAO ESP32-S3!");
+  Serial.println("Hello, Hardware!");
   Serial.println("Welcome to Wokwi :-)");
-  Serial.begin(115200);
 
-  // Inicializar el bus I2C con los pines correctos
-  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
+  // --- CAMBIO MANTENIDO ---
+  // Inicializar el bus I2C con los pines por defecto (D4/D5 en XIAO, A4/A5 en Uno)
+  Wire.begin();
 
   // --- Inicializar el Acelerómetro (MPU-6050) ---
   if (!mpu.begin()) {
@@ -43,12 +50,11 @@ void setup() {
   }
   Serial.println("MPU-6050 encontrado!");
 
-  // Configurar el rango del acelerómetro (puedes cambiarlo)
-  mpu.setAccelerometerRange(MPU6050_RANGE_8_G); // Opciones: 2_G, 4_G, 8_G, 16_G
+  // Configurar el rango del acelerómetro
+  mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
 
   // --- Inicializar la Pantalla OLED (SSD1306) ---
-  // La dirección I2C más común es 0x3C
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { 
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
     Serial.println(F("Error al inicializar la pantalla SSD1306."));
     while (1) {
       delay(10);
@@ -62,37 +68,35 @@ void setup() {
 }
 
 void loop() {
+  // --- CAMBIO ---
+  // Usar las constantes de pin universales
   Serial.println("Red");
-  digitalWrite(D2, HIGH);
+  digitalWrite(RED_LED_PIN, HIGH);
   delay(500);
-  digitalWrite(D2, LOW);
+  digitalWrite(RED_LED_PIN, LOW);
 
   Serial.println("Green");
-  digitalWrite(D3, HIGH);
+  digitalWrite(GREEN_LED_PIN, HIGH);
   delay(500);
-  digitalWrite(D3, LOW);
+  digitalWrite(GREEN_LED_PIN, LOW);
 
   Serial.println("Blue");
-  digitalWrite(D4, HIGH);
+  digitalWrite(BLUE_LED_PIN, HIGH);
   delay(500);
-  digitalWrite(D4, LOW);
+  digitalWrite(BLUE_LED_PIN, LOW);
+
   // Obtener nuevos eventos (datos) de los sensores
   sensors_event_t a, g, temp;
   mpu.getEvent(&a, &g, &temp);
 
   // --- Actualizar la Pantalla OLED ---
-
-  // 1. Limpiar el búfer de la pantalla
   display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
 
-  // 2. Configurar el texto
-  display.setTextSize(1);      // Tamaño de fuente pequeño
-  display.setTextColor(SSD1306_WHITE); // Color del texto
-
-  // 3. Escribir los datos en el búfer
-  display.setCursor(0, 0); // Posición (x, y)
+  display.setCursor(0, 0);
   display.println("Aceleracion (m/s^2):");
-  display.println(""); // Línea en blanco
+  display.println(""); 
 
   display.setCursor(0, 24);
   display.print("X: ");
@@ -106,9 +110,7 @@ void loop() {
   display.print("Z: ");
   display.print(a.acceleration.z);
 
-  // 4. Enviar el búfer a la pantalla para mostrarlo
   display.display();
 
-  // Pequeña pausa para que la pantalla sea legible
   delay(100);
 }
