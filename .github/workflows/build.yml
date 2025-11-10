@@ -124,7 +124,7 @@ jobs:
             --latest \
             --prerelease=false \
             --draft=false \
-            ./build/*.bin ./build/*.hex \
+            ./build/*.bin \
           || \
           ( \
             echo "Release 'latest' already exists. Re-creating..." && \
@@ -137,5 +137,5 @@ jobs:
               --latest \
               --prerelease=false \
               --draft=false \
-              ./build/*.bin ./build/*.hex \
+              ./build/*.bin \
           )
